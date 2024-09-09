@@ -11,6 +11,7 @@ class UserAdmin(admin.ModelAdmin):
     list_filter = ("is_staff", "is_superuser", "is_active", "groups")
     search_fields = ("phone_no", "first_name", "last_name", "email")
     ordering = ("date_joined",)
+    readonly_fields = ("password", "last_login", "date_joined")
     fieldsets = (
         (None, {
             "fields": ("email", "password")
