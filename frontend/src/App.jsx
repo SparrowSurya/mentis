@@ -1,16 +1,21 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Route, Routes } from "react-router-dom"
+import Layout from "./layout/Layout"
+import Home from "./pages/Home"
+import { Button } from "./components/ui/button"
+
 
 function App() {
 
-  const [count, setCount] = useState(0)
 
   return (
-    <>
-      <div>Sanjay Rai</div> 
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout></Layout>}>
+           <Route index element={<Home></Home>}></Route>
+        </Route>
+      </Routes>
+    </BrowserRouter>
+
   )
 }
 
