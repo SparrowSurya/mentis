@@ -21,13 +21,15 @@ class UserRegistrationTest(APITestCase):
             "last_name": "last-name",
             "email": "test@example.com",
             "phone_no": "9876543210",
-            "password": "test@1234",
+            "password1": "test@1234",
+            "password2": "test@1234",
         }
         response = self.client.post(url, data)
-        user_data = response.json()["user"]
+        user_data = response.json()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        data.pop("password")
+        data.pop("password1")
+        data.pop("password2")
         for key, value in data.items():
             self.assertEqual(user_data[key], value)

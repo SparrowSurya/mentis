@@ -14,16 +14,17 @@ def root(request):
 class UserRegistrationAPIView(generics.GenericAPIView):
     """User Registration API view."""
 
-    serializer_class = serializers.UserSerializer
+    serializer_class = serializers.UserRegistrationSerializer
     permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):
-        return Response("API url endpoint for user registration.", status=status.HTTP_200_OK)
+        return Response("API endpoint for user registration.", status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data, context={"request": request})
         if serializer.is_valid():
-            serializer.save()
-            return Response({"user": serializer.data}, status=status.HTTP_200_OK)
+            user = serializer.save()
+            reaponse_serializer = serializers.UserSerializer(user)
+            return Response(reaponse_serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
