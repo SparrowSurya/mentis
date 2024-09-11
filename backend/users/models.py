@@ -94,7 +94,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     EMAIL_FIELD = "email"
-    USERNAME_FIELD = "email" # use email instead username
+    USERNAME_FIELD = "email" # use email for login
     REQUIRED_FIELDS = []
 
     class Meta:
