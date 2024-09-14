@@ -16,29 +16,38 @@ class RootAPICallTest(APITestCase):
 
 class UserRegistrationTest(APITestCase):
 
-    def test_user_registration(self):
-        url = reverse("api:user-register")
+    register_url = reverse("api:user-register")
+
+    def test_user_registration_success(self):
         data = {
-            "first_name": "first-name",
-            "last_name": "last-name",
             "email": "test@example.com",
             "phone_no": "9876543210",
             "password1": "test@1234",
             "password2": "test@1234",
         }
-        response = self.client.post(url, data)
-        user_data = response.json()
+        response = self.client.post(self.register_url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data.pop("password1")
         data.pop("password2")
+        user_data = response.json()
         for key, value in data.items():
             self.assertEqual(user_data[key], value)
+
+    def test_registration_fails_on_mismatch_passords(self):
+        data = {
+            "email": "test@example.com",
+            "password1": "test@1234",
+            "password2": "wrong-password",
+        }
+        assert data["password1"] != data["password2"]
+        response = self.client.post(self.register_url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class UserAuthenticationTest(APITestCase):
 
-    wrong_password = "wrong[assword]"
+    wrong_password = "wrongPassword"
     password = "password1234"
 
     login_url = reverse("api:user-login")
@@ -46,15 +55,10 @@ class UserAuthenticationTest(APITestCase):
 
     def setUp(self):
         assert self.password != self.wrong_password
-
-        self.user = User(**{
-            "first_name": "first-name",
-            "last_name": "last-name",
-            "email": "test@example.com",
-            "phone_no": "9876543210",
-        })
-        self.user.set_password(self.password)
-        self.user.save()
+        self.user = User.objects.create_user(
+            email="test@example.com",
+            password=self.password,
+        )
 
     def test_login_success(self):
         credentials = {"email": "test@example.com", "password": self.password}
