@@ -11,33 +11,11 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.User
         fields = (
-            "id",
-            "password",
-            "last_login",
-            "is_superuser",
             "email",
             "phone_no",
             "first_name",
             "last_name",
-            "is_staff",
-            "is_active",
-            "date_joined",
-            "groups",
-            "user_permissions",
         )
-        read_only_fields = (
-            "id",
-            "is_staff",
-            "is_superuser",
-            "is_active",
-            "date_joined",
-            "last_login",
-            "groups",
-            "user_permissions",
-        )
-        extra_kwargs = {
-            "password": {"write_only": True},
-        }
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
