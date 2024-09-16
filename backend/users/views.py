@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import check_password
 from rest_framework import status, generics
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -21,9 +22,6 @@ class UserRegistrationAPIView(generics.GenericAPIView):
 
     serializer_class = serializers.UserRegistrationSerializer
     permission_classes = [AllowAny]
-
-    def get(self, request, *args, **kwargs):
-        return Response("API endpoint for user registration.", status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data, context={"request": request})
@@ -56,3 +54,47 @@ class UserLogoutAPIView(generics.GenericAPIView):
 
 class UserTokenRefreshView(TokenRefreshView):
     """User refresh access token API view."""
+
+
+class UserUpdationAPIView(generics.GenericAPIView):
+    """User updation API view."""
+
+    serializer_class = serializers.UserUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, *args, **kwargs):
+        serializer = self.get_serializer(
+            instance=request.user,
+            data=request.data,
+            partial=True,
+            context={"request": request},
+        )
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        user = serializer.save()
+        user_serializer = serializers.UserSerializer(user)
+        return Response({
+            "user": user_serializer.data,
+            "detail": "updated user details!",
+        }, status=status.HTTP_200_OK)
+
+
+class UserPasswordUpdationAPIView(generics.GenericAPIView):
+    """User password updation API view."""
+
+    serializer_class = serializers.UserPasswordUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, *args, **kwargs):
+        serializer = self.get_serializer(
+            instance=request.user,
+            data=request.data,
+            partial=True,
+            context={"request": request},
+        )
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+
+        serializer.save()
+        return Response({"detail": "password updated!"}, status=status.HTTP_200_OK)

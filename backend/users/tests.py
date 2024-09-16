@@ -87,3 +87,105 @@ class UserAuthenticationTest(APITestCase):
     def test_logout_bad_request(self):
         response = self.client.post(self.logout_url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class UserUpdationTest(APITestCase):
+
+    email = "user@example.com"
+    password = "password"
+    wrong_password = "wrongpassword"
+
+    login_url = reverse("api:user-login")
+    logout_url = reverse("api:user-logout")
+    user_update_url = reverse("api:user-update")
+    user_password_update_url = reverse("api:user-update-password")
+
+    def setUp(self):
+        assert self.password != self.wrong_password
+
+        self.user = User.objects.create_user(
+            email=self.email,
+            password=self.password,
+        )
+        credentials = {
+            "email": self.email,
+            "password": self.password,
+        }
+        response = self.client.post(self.login_url, credentials)
+        tokens = response.json()
+
+        self.access_tok = tokens["access"]
+        self.refresh_tok = tokens["refresh"]
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.access_tok}")
+
+    def test_user_updation_success(self):
+        data = {
+            "first_name": "user",
+            "last_name": "_007",
+            "email": "newuser@example.com",
+            "phone_no": "9876543211",
+        }
+        response = self.client.put(self.user_update_url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        updated_data = response.json()["user"]
+        for key, value in data.items():
+            self.assertEqual(value, updated_data[key])
+
+    def test_user_updation_failure_on_missing_required_field(self):
+        data = {
+            "first_name": "user",
+            "last_name": "_007",
+            "email": "",
+            "phone_no": "9876543211",
+        }
+        response = self.client.put(self.user_update_url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_user_password_updation_then_login_success(self):
+        password1 = password2 ="new-password"
+        assert password1 == password2
+        data = {
+            "old_password": self.password,
+            "password1": password1,
+            "password2": password2,
+        }
+        response = self.client.put(self.user_password_update_url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.client.post(self.logout_url, {"refresh": self.refresh_tok})
+
+        credentials = {
+            "email": self.email,
+            "password": password1,
+        }
+        response = self.client.post(self.login_url, credentials)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_user_password_updation_failure_on_mismatch(self):
+        password1 = "new-password"
+        password2 = "no-new-password"
+        assert password1 != password2
+        data = {
+            "old_password": self.password,
+            "password1": password1,
+            "password2": password2,
+        }
+        response = self.client.put(self.user_password_update_url, data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_user_password_updation_failure_on_wrong_old_password(self):
+        old_password = "wrong-old-password"
+        password1 = password2 ="new-password"
+
+        assert old_password != self.password
+        assert password1 == password2
+
+        data = {
+            "old_password": old_password,
+            "password1": password1,
+            "password2": password2,
+        }
+        response = self.client.put(self.user_password_update_url, data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
