@@ -64,7 +64,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=15,
         unique=True,
         null=True,
-        blank=True,
+        blank=False,
     )
     first_name = models.CharField(
         _("first name"),

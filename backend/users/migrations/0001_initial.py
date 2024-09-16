@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
                 (
                     "phone_no",
                     models.CharField(
-                        blank=True,
+                        blank=False,
                         max_length=15,
                         null=True,
                         unique=True,
