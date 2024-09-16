@@ -94,7 +94,7 @@ class UserPasswordUpdationAPIView(generics.GenericAPIView):
             context={"request": request},
         )
         if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         serializer.save()
         return Response({"detail": "password updated!"}, status=status.HTTP_200_OK)

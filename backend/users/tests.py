@@ -173,7 +173,7 @@ class UserUpdationTest(APITestCase):
             "password2": password2,
         }
         response = self.client.put(self.user_password_update_url, data)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_user_password_updation_failure_on_wrong_old_password(self):
         old_password = "wrong-old-password"
@@ -188,4 +188,4 @@ class UserUpdationTest(APITestCase):
             "password2": password2,
         }
         response = self.client.put(self.user_password_update_url, data)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
